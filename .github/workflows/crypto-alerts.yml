@@ -8,7 +8,7 @@ on:
 
 # Autorise uniquement ce workflow à mémoriser le dernier état observé.
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: crypto-alerts
@@ -49,3 +49,19 @@ jobs:
         with:
           path: state.json
           key: crypto-alert-state-${{ github.run_id }}
+
+      # GitHub désactive les plannings des dépôts publics inactifs après 60 jours.
+      # Un seul petit commit mensuel maintient donc ce dépôt actif.
+      - name: Garder le planning actif
+        if: success()
+        run: |
+          MONTH=$(date -u +%Y-%m)
+          FILE=.github/last-scheduled-run.txt
+          if [ ! -f "$FILE" ] || [ "$(cat "$FILE")" != "$MONTH" ]; then
+            echo "$MONTH" > "$FILE"
+            git config user.name "crypto-alerts[bot]"
+            git config user.email "crypto-alerts[bot]@users.noreply.github.com"
+            git add "$FILE"
+            git commit -m "chore: keep scheduled alerts active"
+            git push
+          fi
