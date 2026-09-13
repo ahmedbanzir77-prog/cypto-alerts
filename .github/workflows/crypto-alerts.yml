@@ -1,0 +1,51 @@
+name: Alertes crypto Telegram
+
+on:
+  schedule:
+    # Toutes les cinq minutes. Décalé pour réduire les retards habituels à l'heure pile.
+    - cron: "2-59/5 * * * *"
+  workflow_dispatch:
+
+# Autorise uniquement ce workflow à mémoriser le dernier état observé.
+permissions:
+  contents: read
+
+concurrency:
+  group: crypto-alerts
+  cancel-in-progress: false
+
+jobs:
+  surveiller:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le bot
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restaurer le dernier état
+        id: state-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: state.json
+          key: crypto-alert-state-${{ github.run_id }}
+          restore-keys: crypto-alert-state-
+
+      - name: Vérifier les adresses
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLL_SECONDS: "300"
+        run: python monitor.py --once
+
+      - name: Mémoriser les dernières transactions
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state.json
+          key: crypto-alert-state-${{ github.run_id }}
