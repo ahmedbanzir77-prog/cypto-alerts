@@ -48,7 +48,7 @@ def read_env() -> dict[str, str]:
 CFG = read_env()
 TOKEN = CFG.get("TELEGRAM_BOT_TOKEN", "")
 CHAT_ID = CFG.get("TELEGRAM_CHAT_ID", "")
-ETH_RPC = CFG.get("ETH_RPC_URL", "https://ethereum-rpc.publicnode.com")
+ETH_RPC = CFG.get("ETH_RPC_URL", "https://eth-mainnet.g.alchemy.com/public")
 SOL_RPC = CFG.get("SOL_RPC_URL", "https://api.mainnet-beta.solana.com")
 POLL_SECONDS = max(10, int(CFG.get("POLL_SECONDS", "30")))
 
