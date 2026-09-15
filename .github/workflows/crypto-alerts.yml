@@ -1,9 +1,7 @@
 name: Alertes crypto Telegram
 
 on:
-  schedule:
-    # Toutes les cinq minutes. Décalé pour réduire les retards habituels à l'heure pile.
-    - cron: "2-59/5 * * * *"
+  # Désactivé : le bot ne peut être lancé que manuellement.
   workflow_dispatch:
 
 # Autorise uniquement ce workflow à mémoriser le dernier état observé.
